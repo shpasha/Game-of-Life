@@ -1,0 +1,152 @@
+<html>
+<head>
+
+</head>
+<body>
+<script>
+document.addEventListener("mouseup", rsLife, true);
+addEventListener("keydown", keydown);
+var HEIGHT = window.innerHeight, WIDTH = window.innerWidth;
+var canvas = document.createElement("canvas");
+var ctx = canvas.getContext("2d");
+var x,y;
+var k = false;
+canvas.width = WIDTH;
+canvas.style.position = 'absolute';
+canvas.style.top = '0';
+canvas.style.left = '0';
+canvas.height = HEIGHT;
+document.body.appendChild(canvas);
+
+var CellSize =  3;
+
+var interval = 1;
+
+var bgColor = "#333333";
+var lineColor = "#FF0000";
+var cellColor = "#FF0000";
+
+timer = setInterval('Life()', interval);
+
+var n = parseInt(HEIGHT/CellSize);
+var m = parseInt(WIDTH/CellSize);
+
+var curGen = new Array(n);
+for (var i = 0; i < n; i++) {
+curGen[i] = new Array(m);
+}
+var nextGen = new Array(n);
+for (var i = 0; i < n; i++) {
+nextGen[i] = new Array(m);
+}
+
+    
+function keydown() {
+    switch (event.keyCode) {
+        case 49: { k = !k; break; }
+        case 50: {drawEmptyField();  genEmptyGeneration(); break;}
+        case 51: {a=prompt("Probability:", 50); genFisrtGeneration(a); drawCurrentGeneration();  break;}
+        case 52: {clearInterval(timer); interval=prompt("Interval:", 500);  timer = setInterval('Life()', interval); break;}
+	 }
+}       
+    
+function genFisrtGeneration(a) {
+for (var i = 0; i < n; i++) 
+	for (var j = 0; j < m; j++) 
+	if ((Math.floor(Math.random() * 1/(a/100))) == 0)
+		curGen[i][j] =	1; else curGen[i][j] = 0;
+}
+
+function genEmptyGeneration() {
+for (var i = 0; i < n; i++) 
+	for (var j = 0; j < m; j++) 
+       curGen[i][j] = 0;
+}
+    
+function drawEmptyField() {
+	ctx.fillStyle = bgColor;
+	ctx.fillRect(0, 0, WIDTH, HEIGHT);
+	ctx.fillStyle = lineColor;
+	ctx.beginPath();
+		for (var i = CellSize; i  < WIDTH; i += CellSize) {
+			ctx.moveTo(i, 0);
+			ctx.lineTo(i, HEIGHT);
+		}
+		for (var i = CellSize; i  < HEIGHT; i += CellSize) {
+			ctx.moveTo(0, i);
+			ctx.lineTo(WIDTH, i);
+		}
+	ctx.stroke();
+}
+
+
+function drawText() {
+ctx.fillStyle = "#00FF00";
+
+if (k) 
+ctx.fillText("1 - Stop        2 - Clear Field          3 - Random         4 - Interval", 1, 10, 500); else
+    ctx.fillText("1 - Start        2 - Clear Field          3 - Random         4 - Interval", 1, 10, 500);
+}
+
+function rsLife(/*MouseEvent*/ e){
+    x = parseInt(e.clientX / CellSize);
+	y = parseInt(e.clientY/CellSize);
+	if (curGen[y][x] == 0) {
+	ctx.fillStyle = cellColor;
+	ctx.fillRect(CellSize*x+1, CellSize*y+1, CellSize-2, CellSize-2);
+	curGen[y][x] = 1;
+	} else {
+	ctx.fillStyle = bgColor;
+	ctx.fillRect(CellSize*x+1, CellSize*y+1, CellSize-2, CellSize-2);
+	curGen[y][x] = 0;
+	}
+}
+
+function genNewGeneration() {
+	for (var i = 0; i < n; i++) 
+	for (var j = 0; j < m; j++) { 
+		nextGen[i][j] = curGen[i][j];
+		var k = 0;
+			for (var i1 = i-1; i1 <= i+1; i1++)
+				for (var j1 = j-1; j1 <= j+1; j1++)
+					if (i1 >= 0 && j1 >= 0 && (i1 != i || j1 !=j) && i1 < n && j1 < m) {
+						if ((curGen[i1][j1] != 0)) k++; 
+					}
+		if (!(k==2 || k==3) && curGen[i][j] == 1) nextGen[i][j] = 0;
+		if (k==3 && curGen[i][j]==0) nextGen[i][j] = 1; 		
+	}
+	
+	for (var i =  0; i < n; i++)
+		for (var j = 0; j < m; j++) curGen[i][j] = nextGen[i][j];
+}
+
+function drawCurrentGeneration() {
+	drawEmptyField();
+	for (var i = 0; i < n; i++) 
+		for (var j = 0; j < m; j++) {
+				if (curGen[i][j] != 0) {
+					ctx.fillStyle = cellColor;
+					ctx.fillRect(CellSize*j+1, CellSize*i+1, CellSize-2, CellSize-2);
+				}
+			}	
+}
+
+firstGen();
+
+    
+function firstGen() {
+    genEmptyGeneration();
+    drawCurrentGeneration();
+}
+
+function Life() {
+drawCurrentGeneration();
+    if (k) {
+genNewGeneration();
+    }
+    drawText();
+}
+
+</script>
+</body>
+</html>
